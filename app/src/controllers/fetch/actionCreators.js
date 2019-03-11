@@ -18,6 +18,7 @@ export const fetchSuccessAction = (namespace, payload) => ({
 export const fetchErrorAction = (namespace, payload) => ({
   type: FETCH_ERROR,
   payload,
+  error: true,
   meta: {
     namespace,
   },
