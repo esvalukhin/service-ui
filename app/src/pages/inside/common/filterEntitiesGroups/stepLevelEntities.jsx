@@ -56,6 +56,7 @@ import {
   ENTITY_AUTOANALYZE,
 } from 'components/filterEntities/constants';
 import { defectTypesSelector } from 'controllers/project';
+import { launchIdSelector } from 'controllers/pages';
 
 const messages = defineMessages({
   NameTitle: {
@@ -263,8 +264,8 @@ const DEFECT_TYPES_SEQUENCE = [
 @injectIntl
 @connect((state) => ({
   defectTypes: defectTypesSelector(state),
-  launchAttributeKeysSearch: URLS.launchAttributeKeysSearch(activeProjectSelector(state)),
-  launchAttributeValuesSearch: URLS.launchAttributeValuesSearch(activeProjectSelector(state)),
+  projectId: activeProjectSelector(state),
+  launchId: launchIdSelector(state),
 }))
 export class StepLevelEntities extends Component {
   static propTypes = {
@@ -272,8 +273,8 @@ export class StepLevelEntities extends Component {
     defectTypes: PropTypes.object.isRequired,
     filterValues: PropTypes.object,
     render: PropTypes.func.isRequired,
-    launchAttributeKeysSearch: PropTypes.string.isRequired,
-    launchAttributeValuesSearch: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
+    launchId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   };
   static defaultProps = {
     filterValues: {},
@@ -330,7 +331,7 @@ export class StepLevelEntities extends Component {
     };
   };
   getEntities = () => {
-    const { intl, filterValues } = this.props;
+    const { intl, filterValues, projectId, launchId } = this.props;
     return [
       {
         id: ENTITY_NAME,
@@ -527,7 +528,7 @@ export class StepLevelEntities extends Component {
         active: ENTITY_ATTRIBUTE_KEYS in filterValues,
         removable: true,
         customProps: {
-          uri: this.props.launchAttributeKeysSearch,
+          uri: URLS.testItemAttributeKeysSearch(projectId, launchId),
           placeholder: intl.formatMessage(messages.ATTRIBUTE_KEYS_PLACEHOLDER),
         },
       },
@@ -541,7 +542,11 @@ export class StepLevelEntities extends Component {
         active: ENTITY_ATTRIBUTE_VALUES in filterValues,
         removable: true,
         customProps: {
-          uri: this.props.launchAttributeValuesSearch,
+          uri: URLS.testItemAttributeValuesSearch(
+            projectId,
+            launchId,
+            (filterValues[ENTITY_ATTRIBUTE_KEYS] || {}).value || '',
+          ),
           placeholder: intl.formatMessage(messages.ATTRIBUTE_VALUES_PLACEHOLDER),
         },
       },
